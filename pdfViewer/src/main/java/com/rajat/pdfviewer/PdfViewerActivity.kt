@@ -142,6 +142,7 @@ class PdfViewerActivity : AppCompatActivity() {
     }
 
     private fun setUpToolbar(toolbarTitle: String) {
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.title = toolbarTitle
