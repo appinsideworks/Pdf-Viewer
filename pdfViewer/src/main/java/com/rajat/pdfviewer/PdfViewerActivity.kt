@@ -142,6 +142,7 @@ class PdfViewerActivity : AppCompatActivity() {
     }
 
     private fun setUpToolbar(toolbarTitle: String) {
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.title = toolbarTitle
@@ -230,7 +231,7 @@ class PdfViewerActivity : AppCompatActivity() {
     }
 
     private fun onPdfError() {
-        Toast.makeText(this, "El archivo pdf está dañado", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Pdf has been corrupted", Toast.LENGTH_SHORT).show()
         true.showProgressBar()
         finish()
     }
@@ -243,7 +244,7 @@ class PdfViewerActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Toast.makeText(
                 context,
-                "Archivo descargado correctamente.",
+                "File is Downloaded Successfully",
                 Toast.LENGTH_SHORT
             ).show()
             context?.unregisterReceiver(this)
