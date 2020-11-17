@@ -8,7 +8,7 @@
     <application>
         <activity
             android:name=".PdfViewerActivity"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>
