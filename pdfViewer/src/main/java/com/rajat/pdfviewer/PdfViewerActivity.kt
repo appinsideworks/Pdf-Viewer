@@ -231,7 +231,8 @@ class PdfViewerActivity : AppCompatActivity() {
     }
 
     private fun onPdfError() {
-        Toast.makeText(this, "Pdf has been corrupted", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Error al cargar el archivo. Inténtalo de nuevo.", Toast.LENGTH_SHORT)
+            .show()
         true.showProgressBar()
         finish()
     }
@@ -244,7 +245,7 @@ class PdfViewerActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Toast.makeText(
                 context,
-                "File is Downloaded Successfully",
+                "Archivo descargado correctamente",
                 Toast.LENGTH_SHORT
             ).show()
             context?.unregisterReceiver(this)
