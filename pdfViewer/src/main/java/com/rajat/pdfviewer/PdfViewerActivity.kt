@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_pdf_viewer.*
+import java.io.File
 
 /**
  * Created by Rajat on 11,July,2020
@@ -34,6 +35,7 @@ class PdfViewerActivity : AppCompatActivity() {
     private var permissionGranted: Boolean? = false
     private var menuItem: MenuItem? = null
     private var fileUrl: String? = null
+    private var filePath: String = ""
 
     companion object {
         const val FILE_URL = "pdf_file_url"
@@ -233,7 +235,7 @@ class PdfViewerActivity : AppCompatActivity() {
     private fun onPdfError() {
         Toast.makeText(this, "Error al cargar el archivo. Inténtalo de nuevo.", Toast.LENGTH_SHORT)
             .show()
-        true.showProgressBar()
+        false.showProgressBar()
         finish()
     }
 
@@ -243,11 +245,17 @@ class PdfViewerActivity : AppCompatActivity() {
 
     private var onComplete: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            Toast.makeText(
-                context,
-                "Archivo descargado correctamente",
-                Toast.LENGTH_SHORT
-            ).show()
+            false.showProgressBar()
+            val file = File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                filePath
+            )
+            if (file.exists()) {
+                startActivityForResult(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                    type = "application/pdf"
+                    putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file))
+                }, "Compartir archivo"), 1109)
+            }
             context?.unregisterReceiver(this)
         }
     }
@@ -257,10 +265,11 @@ class PdfViewerActivity : AppCompatActivity() {
             val directoryName = intent.getStringExtra(FILE_DIRECTORY)
             val fileName = intent.getStringExtra(FILE_TITLE)
             val fileUrl = intent.getStringExtra(FILE_URL)
-            val filePath =
+            filePath =
                 if (TextUtils.isEmpty(directoryName)) "/$fileName.pdf" else "/$directoryName/$fileName.pdf"
 
             try {
+                true.showProgressBar()
                 val downloadUrl = Uri.parse(fileUrl)
                 val downloadManger = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager?
                 val request = DownloadManager.Request(downloadUrl)
@@ -271,21 +280,22 @@ class PdfViewerActivity : AppCompatActivity() {
                 request.setAllowedOverRoaming(true)
                 request.setTitle(fileName)
                 request.setDescription("Downloading $fileName")
-                request.setVisibleInDownloadsUi(true)
+//                request.setVisibleInDownloadsUi(true)
                 request.setDestinationInExternalPublicDir(
                     Environment.DIRECTORY_DOWNLOADS,
                     filePath
                 )
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+//                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 registerReceiver(
                     onComplete,
                     IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
                 )
                 if (permissionGranted!!) downloadManger!!.enqueue(request)
             } catch (e: Exception) {
+                false.showProgressBar()
                 Toast.makeText(
                     this,
-                    "Unable to download file",
+                    "No se pudo descargar el archivo",
                     Toast.LENGTH_SHORT
                 ).show()
             }
