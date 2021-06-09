@@ -246,15 +246,28 @@ class PdfViewerActivity : AppCompatActivity() {
     private var onComplete: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             false.showProgressBar()
-            val file = File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                filePath
-            )
-            if (file.exists()) {
-                startActivityForResult(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
-                    type = "application/pdf"
-                    putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file))
-                }, "Compartir archivo"), 1109)
+            try {
+                val file = File(
+                    getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+                    filePath
+                )
+                if (file.exists()) {
+                    val currentUriForFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        Uri.parse(file.path)
+                    } else {
+                        Uri.fromFile(file)
+                    }
+                    startActivityForResult(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                        type = "application/pdf"
+                        putExtra(Intent.EXTRA_STREAM, currentUriForFile)
+                    }, "Compartir archivo"), 1109)
+                }
+            } catch (e: Exception) {
+                Toast.makeText(
+                    context,
+                    "No se pudo compartir el archivo",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             context?.unregisterReceiver(this)
         }
@@ -281,7 +294,8 @@ class PdfViewerActivity : AppCompatActivity() {
                 request.setTitle(fileName)
                 request.setDescription("Downloading $fileName")
 //                request.setVisibleInDownloadsUi(true)
-                request.setDestinationInExternalPublicDir(
+                request.setDestinationInExternalFilesDir(
+                    this,
                     Environment.DIRECTORY_DOWNLOADS,
                     filePath
                 )
